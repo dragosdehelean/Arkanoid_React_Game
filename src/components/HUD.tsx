@@ -60,7 +60,7 @@ const HUD: React.FC = () => {
             {medalLabel}
           </span>
           <span style={{ opacity: 0.85, fontSize: 12 }}>
-            ≤{thr.gold}s Gold · ≤{thr.silver}s Silver · ≤{thr.bronze}s Bronze
+            {'<='}{thr.gold}s Gold · {'<='}{thr.silver}s Silver · {'<='}{thr.bronze}s Bronze
           </span>
         </div>
       )}

@@ -41,6 +41,8 @@ export class GameEngine {
   private tSec = 0; // engine elapsed seconds
   private effects = { expandUntil: 0 };
   private particles: { x: number; y: number; vx: number; vy: number; life: number; ttl: number }[] = [];
+  // Throttle HUD attribute sync when not running in E2E to avoid per-frame DOM churn
+  private lastHudAttrSync = -1;
 
   constructor(private canvas: HTMLCanvasElement, private dispatch: AppDispatch) {}
 
@@ -422,6 +424,23 @@ export class GameEngine {
         this.canvas.removeAttribute('data-thr-gold');
         this.canvas.removeAttribute('data-thr-silver');
         this.canvas.removeAttribute('data-thr-bronze');
+      }
+    }
+
+    // Outside E2E: still expose timer and medal-now at a throttled cadence so HUD can read them
+    if (!this.e2e) {
+      if (this.features.timeAttack) {
+        const elapsed = Math.max(0, this.tSec - this.levelStartSec);
+        if (this.lastHudAttrSync < 0 || elapsed - this.lastHudAttrSync >= 0.08) { // ~12.5 Hz
+          this.canvas.setAttribute('data-elapsed', elapsed.toFixed(1));
+          const medalNow = computeMedalForLevel(elapsed, this.levelIdx);
+          this.canvas.setAttribute('data-medal-now', medalNow);
+          this.lastHudAttrSync = elapsed;
+        }
+      } else {
+        this.canvas.removeAttribute('data-elapsed');
+        this.canvas.removeAttribute('data-medal-now');
+        this.lastHudAttrSync = -1;
       }
     }
 

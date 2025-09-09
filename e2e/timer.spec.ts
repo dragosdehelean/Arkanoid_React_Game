@@ -67,3 +67,39 @@ test('HUD timer stops on Pause and resumes after Resume', async ({ page }) => {
   expect(afterResumeLater).toBeGreaterThan(afterResume);
 });
 
+test('HUD timer updates in non-e2e mode', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForSelector('body[data-app-ready="1"]');
+  // Ensure Time Attack is enabled (default true). Start the game.
+  await page.locator('.overlay').getByRole('button', { name: 'Start' }).click();
+  const canvas = page.locator('canvas.game-canvas');
+  const hud = page.getByLabel('Time Attack');
+  await expect(hud).toBeVisible();
+  await expect(hud).toContainText('Time:');
+
+  // Wait enough so throttled attribute sync kicks in
+  await page.waitForFunction(() => {
+    const c = document.querySelector('canvas.game-canvas');
+    const v = c ? parseFloat((c as HTMLElement).getAttribute('data-elapsed') || '0') : 0;
+    return v > 0.1;
+  });
+  const start = Number((await canvas.getAttribute('data-elapsed')) || '0');
+  await page.waitForTimeout(500);
+  const later = Number((await canvas.getAttribute('data-elapsed')) || '0');
+  expect(later).toBeGreaterThan(start);
+});
+
+test('Pause stops timer in non-e2e mode', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForSelector('body[data-app-ready="1"]');
+  await page.locator('.overlay').getByRole('button', { name: 'Start' }).click();
+  const canvas = page.locator('canvas.game-canvas');
+
+  await page.waitForTimeout(300);
+  const before = Number((await canvas.getAttribute('data-elapsed')) || '0');
+  await page.getByRole('button', { name: 'Pause' }).click();
+  await expect(page.getByText('Paused')).toBeVisible();
+  await page.waitForTimeout(400);
+  const during = Number((await canvas.getAttribute('data-elapsed')) || '0');
+  expect(during - before).toBeLessThan(0.11);
+});
