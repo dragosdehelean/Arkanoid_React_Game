@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
@@ -6,7 +7,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   // Exclude slow/natural-run tests by default; enable with RUN_NATURAL=1
-  grepInvert: process.env.RUN_NATURAL ? undefined : /@natural/,
+  ...(process.env.RUN_NATURAL ? {} : { grepInvert: /@natural/ }),
   // Use fewer workers locally as well to improve stability
   workers: 2,
   reporter: [['list']],
