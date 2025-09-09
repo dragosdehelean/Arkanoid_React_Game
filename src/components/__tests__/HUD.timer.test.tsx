@@ -21,17 +21,15 @@ describe('HUD timer UI', () => {
     vi.useFakeTimers();
     let t = 0;
     const timers: any[] = [];
-    const raf = vi
-      .spyOn(window, 'requestAnimationFrame' as any)
-      .mockImplementation((cb: FrameRequestCallback) => {
-        t += 100; // ms
-        const id: any = setTimeout(() => cb(t), 0);
-        timers.push(id);
-        return id as any;
-      });
-    const caf = vi
-      .spyOn(window, 'cancelAnimationFrame' as any)
-      .mockImplementation((id: any) => clearTimeout(id));
+    const raf: any = vi.spyOn(window as any, 'requestAnimationFrame' as any);
+    raf.mockImplementation((cb: FrameRequestCallback) => {
+      t += 100; // ms
+      const id: any = setTimeout(() => cb(t), 0);
+      timers.push(id);
+      return id as any;
+    });
+    const caf: any = vi.spyOn(window as any, 'cancelAnimationFrame' as any);
+    caf.mockImplementation((id: any) => clearTimeout(id));
 
     const canvas = document.querySelector('canvas.game-canvas') as HTMLElement;
     canvas.setAttribute('data-elapsed', '0.1');
@@ -54,4 +52,3 @@ describe('HUD timer UI', () => {
     vi.useRealTimers();
   });
 });
-
