@@ -311,7 +311,8 @@ export class GameEngine {
       }
     }
 
-    if (this.bricks.length === 0) {
+    const onlyIndestructibleLeft = this.bricks.length > 0 && this.bricks.every(b => b.kind === 'indestructible');
+    if (this.bricks.length === 0 || onlyIndestructibleLeft) {
       if (this.features.timeAttack) {
         const elapsed = Math.max(0, this.tSec - this.levelStartSec);
         const medal = computeMedalForLevel(elapsed, this.levelIdx);

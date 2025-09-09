@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.clear());
 });
 
-test('Does not clear when only indestructible bricks remain', async ({ page }) => {
+test('Clears level when only indestructible bricks remain', async ({ page }) => {
   // Choose a level that includes indestructible bricks (code 9 in patterns)
   await page.goto('/?e2e=1&engine=1&level=7');
   await page.waitForSelector('body[data-app-ready="1"]');
@@ -28,13 +28,9 @@ test('Does not clear when only indestructible bricks remain', async ({ page }) =
 
   expect(remainingIndestructibles).toBeGreaterThan(0);
 
-  // Give the engine a moment to run; it should NOT consider the level cleared
-  await page.waitForTimeout(800);
-
-  // Overlay for Level Cleared should not appear
+  // Engine should detect no destructible bricks remain and mark level cleared
+  await page.getByText('Level Cleared!').isVisible();
+  // Proceed to next level to verify flow stays consistent
+  await page.getByRole('button', { name: 'Next Level' }).click();
   await expect(page.getByText('Level Cleared!')).toHaveCount(0);
-
-  // Canvas attribute should reflect that bricks still remain (>0)
-  const bricksAttr = Number(await canvas.getAttribute('data-bricks'));
-  expect(bricksAttr).toBe(remainingIndestructibles);
 });
