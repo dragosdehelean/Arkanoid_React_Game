@@ -60,6 +60,8 @@ export class GameEngine {
     const ramp = Math.min(this.levelIdx, 9) * 20;
     this.baseBallSpeed = 300 + ramp;
     this.levelStartSec = this.tSec;
+    // Reset HUD sync throttle so the new level's timer starts from 0 immediately
+    this.lastHudAttrSync = -1;
     this.combo.count = 0; this.combo.timer = 0;
     if (this.e2e) {
       this.canvas.setAttribute('data-level-total', String(total));
