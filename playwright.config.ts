@@ -5,6 +5,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  // Exclude slow/natural-run tests by default; enable with RUN_NATURAL=1
+  grepInvert: process.env.RUN_NATURAL ? undefined : /@natural/,
   // Use fewer workers locally as well to improve stability
   workers: 2,
   reporter: [['list']],
