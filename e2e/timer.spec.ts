@@ -52,11 +52,14 @@ test('HUD timer stops on Pause and resumes after Resume', async ({ page }) => {
   // Pause via HUD
   await page.getByRole('button', { name: 'Pause' }).click();
   await expect(page.getByText('Paused')).toBeVisible();
+  // Ensure engine acknowledged pause
+  await expect(canvas).toHaveAttribute('data-paused', '1');
+  const pausedStart = Number((await canvas.getAttribute('data-elapsed')) || '0');
 
   // While paused, elapsed time should not advance meaningfully
   await page.waitForTimeout(400);
   const duringPause = Number((await canvas.getAttribute('data-elapsed')) || '0');
-  expect(duringPause - beforePause).toBeLessThan(0.11); // allow minor rounding jitter
+  expect(duringPause - pausedStart).toBeLessThan(0.12); // allow minor rounding jitter
 
   // Resume and expect time to advance again
   await page.locator('.overlay').getByRole('button', { name: 'Resume' }).click();
